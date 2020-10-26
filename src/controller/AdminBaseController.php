@@ -18,7 +18,7 @@ class AdminBaseController extends BaseController
 
     protected function initialize()
     {
-        // 监听admin_init
+        // 监听admin_init----------------
         hook('admin_init');
         parent::initialize();
         $sessionAdminId = session('ADMIN_ID');
