@@ -147,5 +147,12 @@ class Storage
         return $this->driver->getFilePath($url);
     }
 
+    /**
+     * getqiniutoken
+     * @return mixed
+     */
+    public function getqiniutoken(){
 
+        return $this->driver->gettoken();
+    }   
 }

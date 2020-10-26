@@ -21,6 +21,13 @@ class AdminBaseController extends BaseController
         // 监听admin_init----------------
         hook('admin_init');
         parent::initialize();
+        
+        $siteInfo = cmf_get_site_info();
+        $this->assign("configpub", $siteInfo);
+        
+        /* redis缓存开启 */
+        connectionRedis();
+        
         $sessionAdminId = session('ADMIN_ID');
         if (!empty($sessionAdminId)) {
             $user = UserModel::where('id', $sessionAdminId)->find();
@@ -66,7 +73,7 @@ class AdminBaseController extends BaseController
             ];
         }
 
-        config('template.view_base', WEB_ROOT . "$themePath/");
+        config('template.view_base', CMF_ROOT . "$themePath/");
         config('template.tpl_replace_string', $viewReplaceStr);
     }
 

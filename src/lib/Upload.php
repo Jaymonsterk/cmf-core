@@ -341,6 +341,9 @@ class Upload
                 session_write_close();
                 $result = $storage->upload($arrInfo["file_path"], $uploadPath . $arrInfo["file_path"], $fileType);
                 if (!empty($result)) {
+                    //LV  移除本地文件
+                    @unlink($uploadPath . $arrInfo["file_path"]);
+                    //LV
                     return array_merge([
                         'filepath'    => $arrInfo["file_path"],
                         "name"        => $arrInfo["filename"],
@@ -373,5 +376,21 @@ class Upload
             'url'         => cmf_get_root() . '/upload/' . $arrInfo["file_path"],
         ];
     }
+
+
+    public function getuploadtoken(){
+        
+        $storage=cmf_get_option('storage');
+
+        if ($storage['type'] == 'Qiniu') { //  增加存储驱动
+            $storage   = new Storage($storage['type'], $storage['storages'][$storage['type']]);
+            $result = $storage->getqiniutoken();
+            return $result;
+        }else{
+            return false;
+        }
+    }
+
+    
 
 }

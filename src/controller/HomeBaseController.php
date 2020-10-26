@@ -22,8 +22,77 @@ class HomeBaseController extends BaseController
         // 监听home_init
         hook('home_init');
         parent::initialize();
-        $siteInfo = cmf_get_site_info();
+        
+        /* redis缓存开启 */
+        connectionRedis();
+        
+        $siteInfo = getConfigPub();
+        
+        if(isset($siteInfo['sina_icon'])){
+            $siteInfo['sina_icon']=get_upload_path($siteInfo['sina_icon']);
+        }
+        if(isset($siteInfo['qq_icon'])){
+            $siteInfo['qq_icon']=get_upload_path($siteInfo['qq_icon']);
+        }
+        if(isset($siteInfo['apk_ewm'])){
+            $siteInfo['apk_ewm']=get_upload_path($siteInfo['apk_ewm']);
+        }
+        if(isset($siteInfo['ipa_ewm'])){
+            $siteInfo['ipa_ewm']=get_upload_path($siteInfo['ipa_ewm']);
+        }
+        if(isset($siteInfo['wechat_ewm'])){
+            $siteInfo['wechat_ewm']=get_upload_path($siteInfo['wechat_ewm']);
+        }
+        if(isset($siteInfo['qr_url'])){
+            $siteInfo['qr_url']=get_upload_path($siteInfo['qr_url']);
+        }else{
+            $siteInfo['qr_url']='';
+        }
+        
         View::share('site_info', $siteInfo);
+        
+        
+        $configpri=getConfigPri();
+        $this->configpub=$siteInfo;
+        $this->configpri=$configpri;
+		$this->assign("configpri",$configpri );
+        
+		$this->assign("site_name",isset($siteInfo['site_name'])? $siteInfo['site_name']:'');
+		$this->assign("current",'' );
+        
+        /* 等级 */
+        $level=getLevelList();
+        $levellist=array();
+        foreach($level as $k=>$v){
+            $levellist[$v['levelid']]=$v;
+        }
+        $levelanchor=getLevelAnchorList();
+        $levelanchorlist=array();
+        foreach($levelanchor as $k=>$v){
+            $levelanchorlist[$v['levelid']]=$v;
+        }
+        
+        $this->assign("levellist",$levellist );
+        $this->assign("levellistj",json_encode($levellist) );
+        $this->assign("levelanchorlist",$levelanchorlist );
+        $this->assign("levelanchorlistj",json_encode($levelanchorlist) );
+        
+        
+        if(session("uid")){
+			$uid=session("uid");
+			$token=session("token");
+			session("uid",$uid);	
+			session("token",$token);	
+			//$this->assign("user",sp_get_current_user());
+			$this->assign("user",getUserPrivateInfo($uid));
+			$this->assign("userinfo",json_encode( getUserPrivateInfo($uid) ) );
+		 
+		}else{
+			$this->assign("user",[] );  
+			$this->assign("userinfo",'null' );  
+		}
+        
+        
     }
 
     protected function _initializeView()
@@ -53,7 +122,7 @@ class HomeBaseController extends BaseController
             ];
         }
 
-        config('template.view_base', WEB_ROOT . "{$themePath}/");
+        config('template.view_base', CMF_ROOT . "{$themePath}/");
         config('template.tpl_replace_string', $viewReplaceStr);
 
         $themeErrorTmpl = "{$themePath}/error.html";
@@ -114,7 +183,7 @@ hello;
             }
         }
 
-        return $content;
+        return parent::display($content, $vars, $config);;
     }
 
     /**
@@ -193,7 +262,7 @@ hello;
         $vars    = [];
         $widgets = [];
         foreach ($files as $file) {
-            $oldMore = $file['more'];
+            $oldMore = json_decode($file['more'], true);
             if (!empty($oldMore['vars'])) {
                 foreach ($oldMore['vars'] as $varName => $var) {
                     $vars[$varName] = $var['value'];

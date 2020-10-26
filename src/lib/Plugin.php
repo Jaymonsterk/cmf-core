@@ -62,7 +62,7 @@ abstract class Plugin
 
         $nameCStyle = Loader::parseName($this->name);
 
-        $this->pluginPath     = WEB_ROOT . 'plugins/' . $nameCStyle . '/';
+        $this->pluginPath     = CMF_ROOT . 'plugins/' . $nameCStyle . '/';
         $this->configFilePath = $this->pluginPath . 'config.php';
 
         if (empty(self::$vendorLoaded[$this->name])) {
