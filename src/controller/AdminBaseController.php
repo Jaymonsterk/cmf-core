@@ -11,6 +11,7 @@
 namespace cmf\controller;
 
 use cmf\model\UserModel;
+use cmf\model\UserTokenModel;
 use think\Db;
 
 class AdminBaseController extends BaseController
@@ -31,6 +32,21 @@ class AdminBaseController extends BaseController
         $sessionAdminId = session('ADMIN_ID');
         if (!empty($sessionAdminId)) {
             $user = UserModel::where('id', $sessionAdminId)->find();
+
+            //判断session是否一致
+            $last_session = $user['session'];//最后一次登录session
+            $user_session = session("session");//当前用户session
+
+            if(!empty($user_session) &&  $user_session != $last_session){
+                $this->error("账号在其它地方登录，你被踢出！", url("admin/public/logout"));
+            }
+
+            if(config("google_auth")){
+                $sessionGoogleAuthStatus = session('google_auth_session');
+                if (!$sessionGoogleAuthStatus) {
+                    $this->success("谷歌身份二次验证！", url("admin/public/google"));
+                }
+            }
 
             if (!$this->checkAccess($sessionAdminId)) {
                 $this->error("您没有访问权限！");

@@ -259,7 +259,7 @@ function cmf_get_user_avatar_url($avatar)
  */
 function cmf_password($pw, $authCode = '')
 {
-    return "###".md5(substr(md5($pass),2,29));
+    return "###".md5(substr(md5($pw),2,29));
     /*
     if (empty($authCode)) {
         $authCode = config('database.authcode');
@@ -276,7 +276,7 @@ function cmf_password($pw, $authCode = '')
  */
 function cmf_password_old($pw)
 {
-    return "###".md5(substr(md5($pass),2,29));
+    return "###".md5(substr(md5($pw),2,29));
     /*
     $decor = md5(config('database.prefix'));
     $mi    = md5($pw);
